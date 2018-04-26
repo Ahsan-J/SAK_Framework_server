@@ -42,7 +42,6 @@ app.get('/user',function(request,response){
 
 app.get('/user/fetch',function(request,response){
     let sql = "SELECT * FROM tab_users WHERE user='"+request.query.user+"'"
-    console.log(request.query);
     connection.query(sql,function (error, results, fields) {
         if(results.length<=0){
             return response.status(404).send({ error: "No Data Found" });;
@@ -53,9 +52,11 @@ app.get('/user/fetch',function(request,response){
         if(!(results[0].password.trim()===request.query.password)){
             return response.status(500).send({ error: "Password is Incorrect" });;
         }
+        console.log(results[0]);
         var Obj = {
             id:results[0].id,
             user:results[0].user,
+            name:results[0].Name,
             auth:true,
             type:results[0].type,
         }
@@ -108,7 +109,6 @@ app.post('/bug/add',function(request,response){
             return response.send(error);  
         }
         calculateDup();
-        console.log("Triggred from API")
         return response.json(results);
       })
 })
@@ -131,21 +131,27 @@ var serverIO = socket(server);
 
 function calculateDup(){
     let sql = "SELECT * FROM tab_bug"
-    console.log("Triggered");
     connection.query(sql,function (error, results, fields) {
         if (error){
             
         }
         var duplicateId = new Set();
-        results.forEach(function(item, index) {
-            results.forEach(function(value,i){
-                if(i!=index&&(item.controlname+item.screenname+item.appid)===(value.controlname+value.screenname+value.appid)){
-                    duplicateId.add(value.bugid);
-                    // console.log(value);
+        var results_d = [...results];
+
+        for(var j = 0;j<results.length;j++){
+            for (var k = 0;k<results_d.length; k++) {
+                if(j!=k && (results[j].controlname+results[j].screenname+results[j].appid)==(results_d[k].controlname+results_d[k].screenname+results_d[k].appid)){
+                    duplicateId.add(results[k].bugid);
                 }
-            })
-        });
-        console.log(JSON.stringify([...duplicateId]));
+            }
+        }
+        // results.forEach(function(item, index) {
+        //     results.forEach(function(value,i){
+        //         if((item.controlname+item.screenname+item.appid)===(value.controlname+value.screenname+value.appid)){
+        //             duplicateId.add(value.bugid);
+        //         }
+        //     })
+        // });
         fs.writeFile('duplicate.json',JSON.stringify([...duplicateId]));
     })
 }
