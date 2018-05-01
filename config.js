@@ -6,5 +6,12 @@ module.exports = {
         user     : 'root',
         password : '',
         database : 'sak_framework'
-      })
+      }),
+      schema:{
+          user:function(paramObj){
+              this.abc='';
+            //   console.log(this);
+              return false;
+          }
+      }
 }

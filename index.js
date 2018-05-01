@@ -2,10 +2,13 @@ var express = require('express');
 var socket = require('socket.io');
 var bodyParser = require('body-parser');
 var connection = require('./config.js').connection;
+var user = require('./config.js').schema.user;
+var _ = require('lodash');
 var fs = require('fs');
 
 var app = express();
 var port = 9000;
+
 var allowCrossDomain = function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -13,56 +16,29 @@ var allowCrossDomain = function (req, res, next) {
     next();
 }
 
-var CryptoJS = require("crypto-js");
-
 app.use(allowCrossDomain);
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
+
+app.use(require('./apiRoutes/user.js'));
+app.use(require('./apiRoutes/application.js'));
 
 app.get('/',function(request,response){
     response.send('<h1>Server Running</h1>')
 })
 
-app.post('/user/add',function(request,response){
-    console.log(request.body);
-    var ciphertext = CryptoJS.AES.encrypt('password', 'one piece');
+app.post('/user/register',function(request,response){
+    if(_.isObject(request.body)){
+        
+    }
+    var schemaModel = new user();  
+    console.log(new user())
+    let params = request.body;
+    var ciphertext = CryptoJS.AES.encrypt(params.password, 'one piece');
 
-    response.json({});
+    return response.json({});
 })
 
-app.get('/user',function(request,response){
-    let sql = "SELECT * FROM tab_users"
-    connection.query(sql,function (error, results, fields) {
-        if (error){
-            return response.send(error);  
-        }
-        return response.json(results);
-      })
-})
-
-app.get('/user/fetch',function(request,response){
-    let sql = "SELECT * FROM tab_users WHERE user='"+request.query.user+"'"
-    connection.query(sql,function (error, results, fields) {
-        if(results.length<=0){
-            return response.status(404).send({ error: "No Data Found" });;
-        }
-        if (error){
-            return response.send(error);  
-        }
-        if(!(results[0].password.trim()===request.query.password)){
-            return response.status(500).send({ error: "Password is Incorrect" });;
-        }
-        console.log(results[0]);
-        var Obj = {
-            id:results[0].id,
-            user:results[0].user,
-            name:results[0].Name,
-            auth:true,
-            type:results[0].type,
-        }
-        return response.json(Obj);
-      })
-})
 
 
 app.get('/bug',function(request,response){
@@ -157,5 +133,6 @@ function calculateDup(){
 }
 
 serverIO.on('connection',function(socket){
+    // calculateDup();
     console.log('User '+socket.id+' is connected');
 })
