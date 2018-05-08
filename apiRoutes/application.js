@@ -57,7 +57,7 @@ route.post('/app/add',function(request,response){
             return response.send(error);  
         }
         
-        sql = "INSERT INTO tab_user_application (id, user_id, app_id) VALUES ('"+ShortID.generate()+"','"+param.created_by+"','"+param.id+"')"
+        sql = "INSERT INTO tab_user_application (id, user_id, app_id, assigned_by) VALUES ('"+ShortID.generate()+"','"+param.created_by+"','"+param.id+"','"+param.created_by+"')"
 
         connection.query(sql,function (error, results, fields) {
             if (error){
@@ -65,16 +65,18 @@ route.post('/app/add',function(request,response){
             }
         
             var Obj = {
-                app_id:param.id,
+                id:param.id,
                 name:param.name,
+                created_by:param.created_by,
             }
 
             return response.json(Obj);
       })
     })
 })
+
 route.get('/app/all',function(request,response){
-    let param = request.params;
+    let param = request.query;
 
     let sql = "SELECT tab_module.name AS module,tab_screens.name AS screen,tab_controls.name AS control,tab_bug.name AS bug,tab_testcase.description FROM tab_module,tab_screens,tab_controls,tab_bug,tab_testcase WHERE tab_module.app_id='"+param.app_id+"' AND tab_screens.module_id=tab_module.id AND tab_controls.screen_id=tab_screens.id AND tab_bug.control_id=tab_controls.id AND tab_testcase.screen_id = tab_screen.id";
 
@@ -85,5 +87,18 @@ route.get('/app/all',function(request,response){
 
             return response.json(results);
     })
+})
+
+route.get('/app/module',function(request,response){
+    let param = request.query;
+    let sql = "SELECT * FROM tab_module WHERE app_id='"+param.app_id+"'"
+
+    connection.query(sql,function (error, results, fields) {
+        if (error){
+            return response.send(error);  
+        }
+            return response.json(results);
+    })
+
 })
 module.exports = route;

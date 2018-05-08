@@ -22,6 +22,8 @@ app.use(bodyParser.json());
 
 app.use(require('./apiRoutes/user.js'));
 app.use(require('./apiRoutes/application.js'));
+app.use(require('./apiRoutes/module.js'));
+
 
 app.get('/',function(request,response){
     response.send('<h1>Server Running</h1>')

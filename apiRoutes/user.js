@@ -16,11 +16,11 @@ route.get('/user',function(request,response){
 route.get('/user/fetch',function(request,response){
     let sql = "SELECT * FROM tab_users WHERE user='"+request.query.user+"'"
     connection.query(sql,function (error, results, fields) {
-        if(results.length<=0){
-            return response.status(404).send({ error: "No Data Found" });;
-        }
         if (error){
             return response.send(error);  
+        }
+        if(results.length<=0){
+            return response.status(404).send({ error: "No Data Found" });;
         }
         
         var bytes  = CryptoJS.AES.decrypt(results[0].password, 'senpai');
