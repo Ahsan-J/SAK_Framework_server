@@ -85,7 +85,7 @@ route.get('/app/all',function(request,response){
             return response.send(error);  
         }
 
-            return response.json(results);
+        return response.json(results);
     })
 })
 
@@ -97,8 +97,44 @@ route.get('/app/module',function(request,response){
         if (error){
             return response.send(error);  
         }
-            return response.json(results);
+        return response.json(results);
     })
 
+})
+
+route.get('/app/screen',function(request,response){
+    let param = request.query;
+    let sql = "SELECT * FROM `tab_screens` WHERE `module_id`=(SELECT id FROM `tab_module` WHERE app_id = '"+param.app_id+"')"
+
+    connection.query(sql,function (error, results, fields) {
+        if (error){
+            return response.send(error);  
+        }
+        return response.json(results);
+    })
+})
+
+route.get('/app/control',function(request,response){
+    let param = request.query;
+    let sql = "SELECT * FROM `tab_controls` WHERE screen_id = (SELECT id FROM `tab_screens` WHERE `module_id`=(SELECT id FROM `tab_module` WHERE app_id = '"+param.app_id+"'))"
+
+    connection.query(sql,function (error, results, fields) {
+        if (error){
+            return response.send(error);  
+        }
+        return response.json(results);
+    })
+})
+
+route.get('/app/bug',function(request,response){
+    let param = request.query;
+    let sql = "SELECT * FROM `tab_bug` WHERE control_id = (SELECT id FROM `tab_controls` WHERE screen_id = (SELECT id FROM `tab_screens` WHERE `module_id`=(SELECT id FROM `tab_module` WHERE app_id = '"+param.app_id+"')))"
+
+    connection.query(sql,function (error, results, fields) {
+        if (error){
+            return response.send(error);  
+        }
+        return response.json(results);
+    })
 })
 module.exports = route;
